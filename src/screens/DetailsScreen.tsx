@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
     View,
@@ -7,16 +6,15 @@ import {
     Image,
     ScrollView,
     Alert,
-    SafeAreaView,
 } from 'react-native';
 import Header from '../components/Header';
 import { GET, baseImageURL } from '../helper/apiConstants';
 import { makeAPIRequest } from '../helper/globalFunctions';
-
-type Props = {};
+import { useSelector } from 'react-redux';
 
 const DetailsScreen = (props: any) => {
-    const { selectedItem, title, themeColor } = props?.route?.params;
+    const { theme } = useSelector((state: any) => state.theme);
+    const { selectedItem, title } = props?.route?.params;
     const id = selectedItem?.id;
     const media_type = selectedItem?.media_type;
     const [data, setData] = useState<any>();
@@ -39,7 +37,7 @@ const DetailsScreen = (props: any) => {
 
     }, []);
     return (
-        <View style={{ ...styles.container, backgroundColor: themeColor }}>
+        <View style={{ ...styles.container, backgroundColor: theme?.bgColor }}>
             <Header
                 title={title}
                 left={true}

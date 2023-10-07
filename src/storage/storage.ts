@@ -9,7 +9,9 @@ const saveData = async (key: any, value: any) => {
 };
 const getData = async (key: any) => {
     try {
-        await AsyncStorage.getItem(key);
+        const data = await AsyncStorage.getItem(key);
+        return data
+
     } catch (e) {
 
     }

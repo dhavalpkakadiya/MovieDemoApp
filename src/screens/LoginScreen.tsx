@@ -1,132 +1,157 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import CustomTextInput from '../components/CustomTextInput'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { hp } from '../theme/constant'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import CustomTextInput from '../components/CustomTextInput';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {hp} from '../theme/constant';
+import {saveData} from '../storage/storage';
 
 type Props = {
-    navigation: NavigationProp<any>
-}
+  navigation: NavigationProp<any>;
+};
 
 const LoginScreen = (props: Props) => {
-    const [email, setEmail] = useState<string>("")
-    const [password, setpassword] = useState<string>("")
-    const [confirmPassword, setConfirmPassword] = useState<string>("")
-    const [isChangePassword, setIsChangePassword] = useState<boolean>(false)
+  const [email, setEmail] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [password, setpassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [isChangePassword, setIsChangePassword] = useState<boolean>(false);
 
-    const navigation = useNavigation();
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            setEmail("")
-            setpassword("")
-            setConfirmPassword("")
-        });
+  const navigation = useNavigation();
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setEmail('');
+      setpassword('');
+      setConfirmPassword('');
+    });
 
-        return unsubscribe;
-    }, [navigation]);
+    return unsubscribe;
+  }, [navigation]);
 
+  const onChangeText = (t: string) => {
+    setEmail(t);
+  };
+  const onPressChange = () => {
+    setEmail('');
+    setpassword('');
+    setConfirmPassword('');
+    setIsChangePassword(!isChangePassword);
+  };
 
-
-    const onChangeText = (t: string) => {
-        setEmail(t);
-    }
-    const onPressChange = () => {
-        setEmail("")
-        setpassword("")
-        setConfirmPassword("")
-        setIsChangePassword(!isChangePassword)
-    }
-
-    function onPressSubmit() {
-        if (email !== "" || password !== "") {
-            if (isChangePassword) {
-                setEmail("")
-                setpassword("")
-                setIsChangePassword(false)
-            } else {
-
-                props.navigation.navigate("HomeScreen", { name: email })
-            }
+  function onPressSubmit() {
+    setIsLoading(true);
+    setTimeout(() => {
+      if (email !== '' && password !== '') {
+        if (isChangePassword) {
+          if (confirmPassword == password) {
+            setEmail('');
+            setpassword('');
+            setIsChangePassword(false);
+          } else {
+            Alert.alert('Passwords are not match..!');
+          }
         } else {
-            Alert.alert("Please enter email and password")
+          saveData('user-name', email);
+          props.navigation.navigate('HomeScreen');
         }
-    }
+      } else {
+        Alert.alert('Please enter email and password');
+      }
+      setIsLoading(false);
+    }, 1000);
+  }
 
-    return (
-        <SafeAreaView style={styles.flex}>
-            <View style={styles.viewMain}>
-                <Text style={styles.textlogin}>{isChangePassword ? "Change Password" : "Login"}</Text>
-                <CustomTextInput
-                    value={email}
-                    placeholder={"Username"}
-                    onChangeText={(text: string) => onChangeText(text)}
-                />
-                <View style={styles.viewMarginTop}>
-                    <CustomTextInput
-                        value={password}
-                        isPassword={true}
-                        placeholder={"Password"}
-                        onChangeText={(text: string) => setpassword(text)}
-                    />
-                </View>
+  return (
+    <SafeAreaView style={styles.flex}>
+      <View style={styles.viewMain}>
+        <Text style={styles.textlogin}>
+          {isChangePassword ? 'Change Password' : 'Login'}
+        </Text>
+        <CustomTextInput
+          value={email}
+          placeholder={'Username'}
+          onChangeText={(text: string) => onChangeText(text)}
+        />
+        <View style={styles.viewMarginTop}>
+          <CustomTextInput
+            value={password}
+            isPassword={true}
+            placeholder={'Password'}
+            onChangeText={(text: string) => setpassword(text)}
+          />
+        </View>
 
-                {isChangePassword && <View style={styles.viewMarginTop}>
-                    <CustomTextInput
-                        value={confirmPassword}
-                        isPassword={true}
-                        placeholder={"Confirm Password"}
-                        onChangeText={(text: string) => setConfirmPassword(text)}
-                    />
-                </View>}
-                <TouchableOpacity style={styles.button} onPress={onPressSubmit}>
-                    <Text style={styles.text}>{"Submit"}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.changePassword} onPress={onPressChange}>
-                    <Text style={[styles.text, { color: "black" }]}>{isChangePassword ? "Back to Login" : "Change Password"}</Text>
-                </TouchableOpacity>
-            </View>
-        </SafeAreaView>
-    )
-}
+        {isChangePassword && (
+          <View style={styles.viewMarginTop}>
+            <CustomTextInput
+              value={confirmPassword}
+              isPassword={true}
+              placeholder={'Confirm Password'}
+              onChangeText={(text: string) => setConfirmPassword(text)}
+            />
+          </View>
+        )}
+        <TouchableOpacity style={styles.button} onPress={onPressSubmit}>
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={styles.text}>{'Submit'}</Text>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.changePassword} onPress={onPressChange}>
+          <Text style={[styles.text, {color: 'black'}]}>
+            {isChangePassword ? 'Back to Login' : 'Change Password'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
-    flex: {
-        flex: 1,
-        backgroundColor: 'white',
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    viewMain: {
-        paddingHorizontal: 10,
-        width: '100%'
-    },
-    viewMarginTop: {
-        marginTop: 20
-    },
-    button: {
-        height: hp(6),
-        width: '90%',
-        alignSelf: "center",
-        backgroundColor: '#000',
-        borderRadius: 10,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 50
-    },
-    text: {
-        color: "white"
-    },
-    textlogin: {
-        color: "black",
-        fontSize: 20,
-        textAlign: "center",
-        marginBottom: 20
-    },
-    changePassword: {
-        alignSelf: 'center',
-        marginTop: 40
-    }
-})
+  flex: {
+    flex: 1,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewMain: {
+    paddingHorizontal: 10,
+    width: '100%',
+  },
+  viewMarginTop: {
+    marginTop: 20,
+  },
+  button: {
+    height: hp(6),
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: '#000',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  text: {
+    color: 'white',
+  },
+  textlogin: {
+    color: 'black',
+    fontSize: 20,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  changePassword: {
+    alignSelf: 'center',
+    marginTop: 40,
+  },
+});
 
-export default LoginScreen
+export default LoginScreen;

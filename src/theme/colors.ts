@@ -1,7 +1,7 @@
-const colors = {
-    black: "black",
-    red: "red",
-    white: "white"
+export const blackTheme = {
+    bgColor: "black"
 }
 
-export default colors
+export const blueTheme = {
+    bgColor: "#8FD3FE"
+}

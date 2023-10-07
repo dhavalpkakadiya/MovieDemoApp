@@ -1,18 +1,18 @@
 import 'react-native-gesture-handler';
-import React, { useEffect } from 'react'
+import React from 'react';
 import RootNavigation from './src/navigation/RootNavigation';
-import { getData } from './src/storage/storage';
-import {LogBox} from 'react-native'
+import {LogBox} from 'react-native';
+import {Provider} from 'react-redux';
+import store from './src/redux/store';
 
 LogBox.ignoreAllLogs(true);
 
-type Props = {}
-
-const App = (props: Props) => {
-
+const App = () => {
   return (
-    <RootNavigation />
-  )
-}
+    <Provider store={store}>
+      <RootNavigation />
+    </Provider>
+  );
+};
 
-export default App
+export default App;
